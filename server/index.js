@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import { postSignup, postLogin } from './controllers/user.js';
+
 
 dotenv.config();
 const app = express();
@@ -24,7 +26,10 @@ app.get('/', (req, res) => {
     res.status(200).json({ status: 'ok' ,
         message: 'Welcome to the PBlogs API!' });
 });
-   
+
+app.post("/signup" , postSignup);
+
+app.post("/login" , postLogin);
 
 
 
