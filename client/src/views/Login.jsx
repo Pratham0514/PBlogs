@@ -11,7 +11,10 @@ function Login() {
    const loginUser = async()=>{
     try{
       const response = await axois.post(`${import.meta.env.VITE_API_URL}/login`,user);
-      console.log(response.data);
+      
+      if(response?.data?.success){
+        localStorage.setItem("loggedInUser", JSON.stringify(response.data.user));
+      }
     }
     catch(error){
       console.log(error)

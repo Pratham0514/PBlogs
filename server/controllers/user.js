@@ -1,4 +1,4 @@
-import e from 'express';
+import md5 from 'md5';
 import User from '../models/User.js';
 const postSignup = async(req, res) => {
     const {name, email, password} = req.body;
@@ -24,7 +24,7 @@ const postSignup = async(req, res) => {
         return res.status(400).json({success: false, message: 'User already exists'});
     }
 
-    const newUser = new User({name, email, password});
+    const newUser = new User({name, email, password: md5(password)});
     const savedUser = await newUser.save();
     res.status(201).json(
         {
@@ -38,7 +38,7 @@ const postLogin = async(req, res) => {
     if(!email || !password){
         return res.status(400).json({success: false, message: 'Please provide email and password'});
     }
-    const existingUser = await User.findOne({email ,password});
+    const existingUser = await User.findOne({email ,password: md5(password)}).select('-password');
     if(existingUser){
         return  res.status(200).json({success: true, message: 'User logged in successfully', user: existingUser}); 
     }else{
