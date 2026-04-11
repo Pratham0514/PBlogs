@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from 'react'
 import axois from 'axios'
 function Login() {
@@ -7,18 +7,20 @@ function Login() {
     email:"",
     password:""
    })
-
+   const navigate = useNavigate();
    const loginUser = async()=>{
     try{
       const response = await axois.post(`${import.meta.env.VITE_API_URL}/login`,user);
       
-      if(response?.data?.success){
-        localStorage.setItem("loggedInUser", JSON.stringify(response.data.user));
-      }
+    if (response?.data?.success) {
+     localStorage.setItem("user", JSON.stringify(response.data.user)); // ✅ same key
+    navigate("/")
+    } else {
+      console.log("Login failed");
     }
-    catch(error){
-      console.log(error)
-    }
+  } catch (error) {
+    console.log("Error:", error);
+  }
    }
 
   return (

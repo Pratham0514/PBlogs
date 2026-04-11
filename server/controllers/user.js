@@ -38,7 +38,12 @@ const postLogin = async(req, res) => {
     if(!email || !password){
         return res.status(400).json({success: false, message: 'Please provide email and password'});
     }
-    const existingUser = await User.findOne({email ,password: md5(password)}).select('-password');
+    /*select('-password');  neccessary to hide password  
+from the response, otherwise it will be sent to the client and stored in localStorage which is a security risk
+
+    select (`id email name`) can be used to select specific fields to return, but in this case we just want to exclude the password field
+    */
+    const existingUser = await User.findOne({email ,password: md5(password)}).select("_id email name");
     if(existingUser){
         return  res.status(200).json({success: true, message: 'User logged in successfully', user: existingUser}); 
     }else{
