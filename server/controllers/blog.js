@@ -14,9 +14,12 @@ export const postBlogs = async (req, res) => {
       content,
       author,
       category,
+      slug: `temp-slug-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` // Temporary slug, will be updated after saving to get the ID
     });
-
+    
     const savedBlog = await newBlog.save();
+    savedBlog.slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}-${savedBlog._id}`;
+    await savedBlog.save();
 
     res.status(201).json({
       success: true,
