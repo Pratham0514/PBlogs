@@ -34,15 +34,29 @@ export const postBlogs = async (req, res) => {
 };
 
 export const getBlogs = async (req, res) => {
-  try{
-    const blogs = await Blog.find().populate("author","_id name email").sort({ createdAt: -1 });
-    res.status(200).json({
-      success: true,
-      data:blogs,
-      message: "Blogs fetched successfully!"
-    });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ message: "Blogs Not fetched" });
-  }
+const { author } = req.query;
+
+const condition = [{ status: "published"  }];
+if (author) {
+  condition.push({ author: author });
+}
+
+try {
+  const blogs = await Blog.find({
+    $or: condition
+  })
+    .populate("author", "_id name email")
+    .sort({
+      status: 1,
+      createdAt: -1
+     });
+
+  res.status(200).json({
+    success: true,
+    data: blogs
+  });
+
+} catch (error) {
+  res.status(500).json({ message: "Error fetching blogs" });
+}
 };
