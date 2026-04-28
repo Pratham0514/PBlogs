@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { postSignup, postLogin } from './controllers/user.js';
-import { postBlogs } from './controllers/blog.js';
+import { postBlogs , getBlogs } from './controllers/blog.js';
 
 
 dotenv.config();
@@ -32,6 +32,7 @@ app.post("/signup" , postSignup);
 
 app.post("/login" , postLogin);
 
+app.get("/blogs" , getBlogs);
 app.post("/blogs" , postBlogs);
 
 const PORT = process.env.PORT || 8080;

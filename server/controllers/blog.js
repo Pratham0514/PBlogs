@@ -32,3 +32,17 @@ export const postBlogs = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getBlogs = async (req, res) => {
+  try{
+    const blogs = await Blog.find().populate("author","_id name email").sort({ createdAt: -1 });
+    res.status(200).json({
+      success: true,
+      data:blogs,
+      message: "Blogs fetched successfully!"
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Blogs Not fetched" });
+  }
+};
