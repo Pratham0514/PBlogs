@@ -82,3 +82,61 @@ export const getBlogFromSlug = async (req, res) => {
     res.status(500).json({ message: "Error fetching blog" });
   }
 };
+
+export const patchPublishBlog = async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    const blog = await Blog.findOneAndUpdate(
+      { slug },
+      { status: "published" },
+      { new: true }
+    );
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: blog,
+      message: "Blog published successfully"
+    });
+
+  } catch (error) {
+    console.error("Publish Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+export const putBlogs = async (req, res) => {
+  const { slug } = req.params;
+  const { title, content, category } = req.body;
+
+  try {
+    const blog = await Blog.findOneAndUpdate(
+      { slug },
+      { title, content, category },
+      { new: true }
+    );
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: blog,
+      message: "Blog updated successfully"
+    });
+
+  } catch (error) {
+    console.error("Update Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  };  
+};
