@@ -60,3 +60,25 @@ try {
   res.status(500).json({ message: "Error fetching blogs" });
 }
 };
+
+export const getBlogFromSlug = async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    const blog = await Blog.findOne({ slug })
+      .populate("author", "_id name email");
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: blog,
+      message: "Blog fetched successfully"
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching blog" });
+  }
+};
