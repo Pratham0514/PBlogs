@@ -1,10 +1,26 @@
 // controllers/blogController.js
 import Blog from '../models/Blog.js';
+import jwt from 'jsonwebtoken';
 
 export const postBlogs = async (req, res) => {
-  const { title, content, author, category } = req.body;
+  const { title, content,  category } = req.body;
+  const { authorization } = req.headers;
 
-  if (!title || !content || !author || !category) {
+  console.log("Authorization header:", authorization);
+  let decodeToken;
+  try {
+    decodeToken = jwt.verify(authorization.split(" ")[1], process.env.JWT_SECRET);
+    console.log("Decoded JWT:", decodeToken);
+  } catch (error) {
+    console.error("Error decoding JWT:", error);
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  const decode = jwt.verify(authorization.split(" ")[1], process.env.JWT_SECRET);
+  console.log("Decoded JWT:", decode);
+
+
+
+  if (!title || !content  || !category) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
@@ -12,7 +28,7 @@ export const postBlogs = async (req, res) => {
     const newBlog = new Blog({
       title,
       content,
-      author,
+      author: decodeToken.userId, // Use the user ID from the decoded JWT
       category,
       slug: `temp-slug-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` // Temporary slug, will be updated after saving to get the ID
     });

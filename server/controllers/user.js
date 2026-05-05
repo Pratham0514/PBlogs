@@ -1,5 +1,6 @@
 import md5 from 'md5';
 import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
 const postSignup = async(req, res) => {
     const {name, email, password} = req.body;
 
@@ -45,7 +46,8 @@ from the response, otherwise it will be sent to the client and stored in localSt
     */
     const existingUser = await User.findOne({email ,password: md5(password)}).select("_id email name");
     if(existingUser){
-        return  res.status(200).json({success: true, message: 'User logged in successfully', user: existingUser}); 
+        const token = jwt.sign({userId: existingUser._id, email: existingUser.email}, process.env.JWT_SECRET, {expiresIn: '1d'});
+        return  res.status(200).json({success: true, message: 'User logged in successfully', user: existingUser, token}); 
     }else{
         return res.status(400).json({success: false, message: 'Invalid email or password'});
     }
