@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
         message: 'Welcome to the PBlogs API!' });
 });
 // Middleware to check JWT token for protected routes
-const jwtCheck = (req, res, next) => {
+export const jwtCheck = (req, res, next) => {
     req.user = null; // Initialize user to null
     const { authorization } = req.headers;
     if (!authorization) {

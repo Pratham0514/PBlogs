@@ -14,6 +14,7 @@ function Login() {
       
     if (response?.data?.success) {
      localStorage.setItem("user", JSON.stringify(response.data.user)); // ✅ same key
+     localStorage.setItem("token", response.data.token); // ✅ same key
     navigate("/")
     } else {
       console.log("Login failed");

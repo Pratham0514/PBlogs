@@ -66,6 +66,11 @@ function EditBlog() {
           content,
           category,
          
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
 
@@ -89,8 +94,14 @@ function EditBlog() {
     setLoading(true);
 
     await axios.patch(
-      `${import.meta.env.VITE_API_URL}/blogs/${slug}/publish`
+      `${import.meta.env.VITE_API_URL}/blogs/${slug}/publish`,
+      {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
     );
+    
 
     toast.success("Blog published successfully!");
 
