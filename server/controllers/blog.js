@@ -4,21 +4,7 @@ import jwt from 'jsonwebtoken';
 
 export const postBlogs = async (req, res) => {
   const { title, content,  category } = req.body;
-  const { authorization } = req.headers;
-
-  console.log("Authorization header:", authorization);
-  let decodeToken;
-  try {
-    decodeToken = jwt.verify(authorization.split(" ")[1], process.env.JWT_SECRET);
-    console.log("Decoded JWT:", decodeToken);
-  } catch (error) {
-    console.error("Error decoding JWT:", error);
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  const decode = jwt.verify(authorization.split(" ")[1], process.env.JWT_SECRET);
-  console.log("Decoded JWT:", decode);
-
-
+  const { user} = req;
 
   if (!title || !content  || !category) {
     return res.status(400).json({ message: "All fields are required." });
@@ -28,7 +14,7 @@ export const postBlogs = async (req, res) => {
     const newBlog = new Blog({
       title,
       content,
-      author: decodeToken.userId, // Use the user ID from the decoded JWT
+      author: user._id, // Use the user ID from the decoded JWT
       category,
       slug: `temp-slug-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` // Temporary slug, will be updated after saving to get the ID
     });
@@ -100,18 +86,31 @@ export const getBlogFromSlug = async (req, res) => {
 };
 
 export const patchPublishBlog = async (req, res) => {
-  const { slug } = req.params;
+    const { slug } = req.params;
+  const { user } = req;
 
   try {
-    const blog = await Blog.findOneAndUpdate(
-      { slug },
-      { status: "published" },
-      { new: true }
-    );
+    // Step 1: Find blog
+    const blog = await Blog.findOne({ slug });
 
     if (!blog) {
-      return res.status(404).json({ message: "Blog not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found"
+      });
     }
+
+    // Step 2: Check ownership
+    if (blog.author.toString() !== user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: You can only publish your own blogs"
+      });
+    }
+
+    // Step 3: Update status
+    blog.status = "published";
+    await blog.save();
 
     return res.status(200).json({
       success: true,
@@ -130,6 +129,16 @@ export const patchPublishBlog = async (req, res) => {
 export const putBlogs = async (req, res) => {
   const { slug } = req.params;
   const { title, content, category } = req.body;
+  const { user } = req;
+
+  const existingBlog = await Blog.findOne({ slug: slug });
+  if (!existingBlog) {
+    return res.status(404).json({ success: false, message: "Blog not found" });
+  }
+
+  if (existingBlog.author.toString() !== user._id) {
+    return res.status(403).json({ success: false, message: "you can only update your own blog" });
+  }
 
   try {
     const blog = await Blog.findOneAndUpdate(
